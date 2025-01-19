@@ -296,6 +296,8 @@ public class LeadProgram extends Launcher {
 		// Back after assigning
 		driver.findElement(By.xpath("//*[@id=\"confirmActionLink\"]")).click();
 
+		System.out.println("Lead Program Assigned Successfully✔️");
+
 	}
 
 }
