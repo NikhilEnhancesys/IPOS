@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -67,9 +69,53 @@ public class LeadProgram extends Launcher {
 		System.out.println("Program Name: " + programName);
 
 		// Start Date
+		try {
+			// Locate and click the date input field
+			WebElement dateInput = driver.findElement(By.xpath("//input[@id='str_dt']"));
+			dateInput.click();
+			// Navigate to the correct month/year if needed
+			while (!driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[2]")).getText()
+					.equals("January 2025")) {
+				driver.findElement(
+						By.xpath("//div[@class='datepicker-days']//th[@class='next'][normalize-space()='»']")).click();
+			}
+			// Select the specific date (21st)
+			List<WebElement> dates = driver.findElements(By.className("day"));
+			for (WebElement date : dates) {
+				if (date.getText().equals("21")) {
+					date.click();
+					break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			System.out.println("Something went wrong while selecting date");
+		}
 
 		// End Date
-
+		try {
+			// Locate and click the date input field
+			WebElement dateInput = driver.findElement(By.xpath("//*[@id=\"end_dt\"]"));
+			dateInput.click();
+			// Navigate to the correct month/year if needed
+			while (!driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[2]")).getText()
+					.equals("January 2025")) {
+				driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[3]")).click();
+			}
+			// Select the specific date (21st)
+			List<WebElement> dates = driver.findElements(By.className("day"));
+			for (WebElement date : dates) {
+				if (date.getText().equals("31")) {
+					date.click();
+					break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			System.out.println("Something went wrong while selecting date");
+		}
 		// Transition Type
 		WebElement trtyp = driver.findElement(By.xpath("//select[@id='trans_type']"));
 		Select transitionType = new Select(trtyp);
@@ -234,6 +280,10 @@ public class LeadProgram extends Launcher {
 		driver.findElement(By.xpath("//*[@id=\"confirmActionLink\"]")).click();
 
 		// Waiting time to load completely upload summary page
+		Thread.sleep(5000);
+
+		// Refresh to complete the status of uploaded Prospect file
+		driver.findElement(By.xpath("//*[@id=\"refresh_list_commonDiv1\"]")).click();
 		Thread.sleep(2000);
 
 		// Refresh to complete the status of uploaded Prospect file
