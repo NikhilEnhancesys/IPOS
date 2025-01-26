@@ -1,5 +1,6 @@
 package com.leadprogram;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -12,9 +13,6 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
-//import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.io.IOException;
 
 public class LeadProgram extends Launcher {
 
@@ -75,14 +73,13 @@ public class LeadProgram extends Launcher {
 			dateInput.click();
 			// Navigate to the correct month/year if needed
 			while (!driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[2]")).getText()
-					.equals("January 2025")) {
-				driver.findElement(
-						By.xpath("//div[@class='datepicker-days']//th[@class='next'][normalize-space()='»']")).click();
+					.equals("February 2025")) {
+				driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[3]")).click();
 			}
 			// Select the specific date (21st)
 			List<WebElement> dates = driver.findElements(By.className("day"));
 			for (WebElement date : dates) {
-				if (date.getText().equals("21")) {
+				if (date.getText().equals("28")) {
 					date.click();
 					break;
 				}
@@ -100,13 +97,13 @@ public class LeadProgram extends Launcher {
 			dateInput.click();
 			// Navigate to the correct month/year if needed
 			while (!driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[2]")).getText()
-					.equals("January 2025")) {
+					.equals("March 2025")) {
 				driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[3]")).click();
 			}
 			// Select the specific date (21st)
 			List<WebElement> dates = driver.findElements(By.className("day"));
 			for (WebElement date : dates) {
-				if (date.getText().equals("31")) {
+				if (date.getText().equals("30")) {
 					date.click();
 					break;
 				}
@@ -144,8 +141,6 @@ public class LeadProgram extends Launcher {
 		String filePath3 = "C:\\Users\\Admin\\Downloads\\sample.pdf";
 		WebElement chooseFile3 = driver.findElement(By.xpath("//input[@id='faq']"));
 		chooseFile3.sendKeys(filePath3);
-		System.out.println("Waiting for 15 seconds to select date");
-		Thread.sleep(15000);
 
 		// Submit
 		driver.findElement(By.xpath("//button[@id='saveLeadProgram']")).click();
@@ -223,12 +218,16 @@ public class LeadProgram extends Launcher {
 		driver.findElement(By.xpath("//input[@id='confirmActionLink']")).click();
 
 		// Refresh
-		Thread.sleep(5000);
+		Thread.sleep(2000);
 		driver.findElement(By.xpath("//*[@id=\"refresh_list_commonDiv1\"]")).click();
 
 		// Capturing ProspectUpload_........ file name
 		String propspectUploadFileName = driver
 				.findElement(By.xpath("//table/tbody/tr[@id='1']//following-sibling::td[2]")).getText();
+
+		// Refresh
+		Thread.sleep(3000);
+		driver.findElement(By.xpath("//*[@id=\"refresh_list_commonDiv1\"]")).click();
 
 		// Download Template: download icon Click
 		driver.findElement(By.xpath("//tr[@id='1']//a[@title='Download Template']")).click();
@@ -306,9 +305,29 @@ public class LeadProgram extends Launcher {
 		driver.findElement(By.xpath("//*[@id=\"1\"]/td[13]/div/ul/li[3]/a")).click();
 		Thread.sleep(3000); // To load the Assign Prospect Grid
 
-		// Activity Code
-		System.out.println("Waiting for 10 seconds to select Activity Date");
-		Thread.sleep(10000);
+		// Activity Date
+		try {
+			// Locate and click the date input field
+			WebElement dateInput = driver.findElement(By.xpath("//*[@id=\"activity_date\"]"));
+			dateInput.click();
+			// Navigate to the correct month/year if needed
+			while (!driver.findElement(By.xpath("/html/body/div[10]/div[1]/table/thead/tr[1]/th[2]")).getText()
+					.equals("March 2025")) {
+				driver.findElement(By.xpath("/html/body/div[10]/div[1]/table/thead/tr[1]/th[3]")).click();
+			}
+			// Select the specific date
+			List<WebElement> dates = driver.findElements(By.className("day"));
+			for (WebElement date : dates) {
+				if (date.getText().equals("10")) {
+					date.click();
+					break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			System.out.println("Something went wrong while selecting date");
+		}
 
 		// Organization selection
 		driver.findElement(By.xpath("//*[@id=\"div_selectedDestOrganization\"]/span")).click();
