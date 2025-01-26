@@ -35,7 +35,7 @@ public class Launcher {
 
 		// username and password
 		driver.findElement(By.id("username")).sendKeys("84208242");
-		driver.findElement(By.id("password")).sendKeys("Admin@123");
+		driver.findElement(By.id("password")).sendKeys("Admin@1234");
 		driver.findElement(By.name("submit")).click();
 	}
 
