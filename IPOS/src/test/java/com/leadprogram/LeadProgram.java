@@ -1,13 +1,26 @@
 package com.leadprogram;
 
+//50469
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.SignStyle;
+import java.time.temporal.ChronoField;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -53,7 +66,7 @@ public class LeadProgram extends Launcher {
 		leadType.selectByVisibleText("Lead New");
 
 		// Program Name creation
-		String pn = "Wholesale";
+		String pn = "SalesChart";
 		// current time HHmm
 		ZoneId indianZone = ZoneId.of("Asia/Kolkata");
 		// Get the current time in the Indian time zone
@@ -66,6 +79,18 @@ public class LeadProgram extends Launcher {
 		driver.findElement(By.xpath("//input[@id='prg_name']")).sendKeys(programName);
 		System.out.println("Program Name: " + programName);
 
+		// Todays date
+		LocalDate today = LocalDate.now();
+		// Define the formatter for dd-MM-YYYY
+		DateTimeFormatter monthYear = DateTimeFormatter.ofPattern("MMMM yyyy");
+		String formattedDate = today.format(monthYear);
+		// Print the formatted date
+		System.out.println("Today's date in MMMM yyyy format: " + formattedDate);
+		// MMMM YYYY
+		int Todaysday = today.getDayOfMonth();
+		String day = String.valueOf(Todaysday);
+		System.out.println(day);
+
 		// Start Date
 		try {
 			// Locate and click the date input field
@@ -73,13 +98,13 @@ public class LeadProgram extends Launcher {
 			dateInput.click();
 			// Navigate to the correct month/year if needed
 			while (!driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[2]")).getText()
-					.equals("February 2025")) {
+					.equals("March 2025")) {
 				driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[3]")).click();
 			}
 			// Select the specific date (21st)
 			List<WebElement> dates = driver.findElements(By.className("day"));
 			for (WebElement date : dates) {
-				if (date.getText().equals("28")) {
+				if (date.getText().equals(day)) {
 					date.click();
 					break;
 				}
@@ -97,7 +122,7 @@ public class LeadProgram extends Launcher {
 			dateInput.click();
 			// Navigate to the correct month/year if needed
 			while (!driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[2]")).getText()
-					.equals("March 2025")) {
+					.equals("April 2025")) {
 				driver.findElement(By.xpath("/html/body/div[9]/div[1]/table/thead/tr[1]/th[3]")).click();
 			}
 			// Select the specific date (21st)
@@ -148,6 +173,7 @@ public class LeadProgram extends Launcher {
 
 		// OK
 		driver.findElement(By.xpath("/html/body/div[9]/div/div/div[3]/button[2]")).click();
+		Thread.sleep(1000);
 
 		// Back
 		driver.findElement(By.xpath("//input[@id='confirmActionLink']")).click();
@@ -209,8 +235,8 @@ public class LeadProgram extends Launcher {
 
 		// Capture the exact time after clicking the button
 		LocalDateTime clickTime = LocalDateTime.now();
-		DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss");
-		String formattedClickTime = clickTime.format(formatter2);
+		DateTimeFormatter formatter3 = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss");
+		String formattedClickTime = clickTime.format(formatter3);
 		// Print the captured time
 		System.out.println("Button clicked at: " + formattedClickTime);
 
@@ -225,6 +251,10 @@ public class LeadProgram extends Launcher {
 		String propspectUploadFileName = driver
 				.findElement(By.xpath("//table/tbody/tr[@id='1']//following-sibling::td[2]")).getText();
 
+		// Refresh -> Refresh till status is completed.
+		Thread.sleep(3000);
+		driver.findElement(By.xpath("//*[@id=\"refresh_list_commonDiv1\"]")).click();
+
 		// Refresh
 		Thread.sleep(3000);
 		driver.findElement(By.xpath("//*[@id=\"refresh_list_commonDiv1\"]")).click();
@@ -236,8 +266,54 @@ public class LeadProgram extends Launcher {
 		String propspectUploadFile = "C:\\Users\\Admin\\Downloads\\" + propspectUploadFileName;
 		System.out.println("propspectUploadFile: " + propspectUploadFile);
 		Thread.sleep(5000);
-		System.out.println("Waiting for 90 seconds to enter data into excel file");
-		Thread.sleep(90000);
+
+		String[][] data = { { "62435678987654", "ABCX", "JABOTABEK", "NORTH AND CENTRAL JAKARTA", "JAKARTA_JKTNC2" },
+				{ "62435678987654", "ABCX", "JABOTABEK", "NORTH AND CENTRAL JAKARTA", "JAKARTA_JKTNC2" },
+				{ "62435678987654", "ABCX", "JABOTABEK", "NORTH AND CENTRAL JAKARTA", "JAKARTA_JKTNC2" },
+				{ "62435678987654", "ABCX", "JABOTABEK", "NORTH AND CENTRAL JAKARTA", "JAKARTA_JKTNC2" },
+				{ "62435678987654", "ABCX", "JABOTABEK", "NORTH AND CENTRAL JAKARTA", "JAKARTA_JKTNC2" } };
+
+		try {
+			// Load the existing Excel file
+			FileInputStream fis = new FileInputStream(propspectUploadFile);
+			Workbook workbook = new XSSFWorkbook(fis);
+
+			// Access the sheet (replace "Sheet1" with your sheet name)
+			Sheet sheet = workbook.getSheet("Sheet1");
+			if (sheet == null) {
+				sheet = workbook.createSheet("Sheet1");
+			}
+
+			// Write the data row by row
+			for (int rowIndex = 1; rowIndex <= data.length; rowIndex++) { // Start from the second row (index 1)
+				Row row = sheet.getRow(rowIndex);
+				if (row == null) {
+					row = sheet.createRow(rowIndex);
+				}
+
+				// Write data into columns
+				for (int colIndex = 0; colIndex < data[rowIndex - 1].length; colIndex++) {
+					Cell cell = row.getCell(colIndex);
+					if (cell == null) {
+						cell = row.createCell(colIndex);
+					}
+					cell.setCellValue(data[rowIndex - 1][colIndex]);
+				}
+			}
+
+			// Close input stream
+			fis.close();
+
+			// Write changes to the file
+			FileOutputStream fos = new FileOutputStream(propspectUploadFile);
+			workbook.write(fos);
+			fos.close();
+
+			System.out.println("Data written successfully to Excel!");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		// propspectUploadFile file path after entering data
 		System.out.println("propspectUploadFile: " + propspectUploadFile);
@@ -247,6 +323,10 @@ public class LeadProgram extends Launcher {
 
 		// Upload Summary click to upload excel file
 		driver.findElement(By.xpath("//a[@href='/upload/main/upload?cat=uploadSummary']")).click();
+
+		// Refresh to complete the status of uploaded Prospect file
+		driver.findElement(By.xpath("//*[@id=\"refresh_list_commonDiv1\"]")).click();
+		Thread.sleep(2000);
 
 		// Upload button to upload file
 		driver.findElement(By.xpath("//button[@id='uploadForm']")).click();
@@ -318,7 +398,7 @@ public class LeadProgram extends Launcher {
 			// Select the specific date
 			List<WebElement> dates = driver.findElements(By.className("day"));
 			for (WebElement date : dates) {
-				if (date.getText().equals("10")) {
+				if (date.getText().equals(day)) {
 					date.click();
 					break;
 				}
@@ -341,13 +421,23 @@ public class LeadProgram extends Launcher {
 
 		// To select organization
 		driver.findElement(By.xpath("//*[@id=\"orgSelectionLink\"]")).click();
+		Thread.sleep(2000);
 
 		// To select user
 		driver.findElement(By.xpath("//*[@id=\"selectedBeatNode\"]")).click();
-		Thread.sleep(5000);
+		Thread.sleep(4000);
 
-		// Radio btn to select sales agent
-		driver.findElement(By.xpath("//*[@id=\"userSelElement_2\"]")).click();
+		WebElement SA = driver.findElement(By.xpath("//*[@id=\"assignBeatTree_search_input\"]"));
+		SA.sendKeys("50469");
+		Thread.sleep(500);
+		act.moveToElement(SA).sendKeys(Keys.ARROW_DOWN).build().perform();
+		act.moveToElement(SA).sendKeys(Keys.RETURN).build().perform();
+		Thread.sleep(500);
+		// to load the sales agent from the NODE
+		Thread.sleep(3000);
+
+		// Radio btn to select sales agent // use this sales agent location(50469)
+		driver.findElement(By.xpath("//*[@id=\"userSelElement_1\"]")).click();
 
 		// Select button to select sales agent
 		driver.findElement(By.xpath("//*[@id=\"assign-beat-popup\"]/div/div/div[3]/button[2]")).click();
@@ -364,6 +454,18 @@ public class LeadProgram extends Launcher {
 
 		// Back after assigning
 		driver.findElement(By.xpath("//*[@id=\"confirmActionLink\"]")).click();
+
+		// Search Program name to verify whether LP assigned or not.
+		WebElement srchPrgrmNameToVerify = driver.findElement(By.xpath("//*[@id=\"gs_prg_name\"]"));
+		srchPrgrmNameToVerify.sendKeys(programName);
+		act.moveToElement(srchPrgrmNameToVerify).sendKeys(Keys.RETURN).build().perform();
+
+		// more btn to view prospect
+		driver.findElement(By.xpath("//*[@id=\"1\"]/td[13]/div/button")).click();
+		Thread.sleep(600);
+
+		// View Prospect
+		driver.findElement(By.xpath("//*[@id=\"1\"]/td[13]/div/ul/li[4]/a")).click();
 
 		System.out.println("Lead Program Assigned Successfully✔️");
 
